@@ -40,7 +40,8 @@ void check_for_tag()
   //Serial.print("checked for tag: ");
   //Serial.println(success);
 
-  RFduinoBLE.send((char*) uid,len_uid);
+  if (len_uid)
+    RFduinoBLE.send((char*) uid,len_uid);
 }
 
 void loop()

@@ -7,13 +7,12 @@ M1 nfc(5,6);
 
 void setup()
 {
+  uint32_t versiondata = nfc.getFirmwareVersion();
+  if (!versiondata)
+    while(1);
+
   RFduinoBLE.deviceName = "wrifd_m1";
   RFduinoBLE.begin();
-
-  uint32_t versiondata = nfc.getFirmwareVersion();
-  if (! versiondata) {
-    while (1); // halt
-  }
 }
 
 void check_for_tag()
@@ -28,8 +27,10 @@ void loop()
 {
   RFduino_ULPDelay(500);
 
-  if (connected)
-    check_for_tag();
+  if (!connected)
+    return;
+
+  check_for_tag();
 }
 
 void RFduinoBLE_onConnect()

@@ -1,6 +1,5 @@
 #include "skyetek_m1.h"
 #include <Wire.h>
-#include <RFduinoBLE.h>
 
 const char read_firmware[] = {4+2, 0x20, 0x22, 0x01, 0x01},
            toggle_sleep[]  = {5+2, 0x20, 0x42, 0x04, 0x01, 0x00},
@@ -80,10 +79,7 @@ uint32_t M1::getFirmwareVersion()
     m1write(read_firmware, sizeof(read_firmware));
   } while( (n=m1read((char*) buf,sizeof(buf),5000)) == 0 );
 
-  for (uint8_t i=0;i<n; i++)
-    RFduinoBLE.send(buf[i]);
-
-  if (!buf[0] == 0x22)
+  if (n==0 || !buf[0] == 0x22)
     return 0;
 
   return *((uint32_t*) buf[1]);
@@ -95,7 +91,10 @@ uint8_t M1::selectTag(uint8_t buf[], uint8_t len)
 
   do {
     m1write(select_tag, sizeof(select_tag));
-  } while ( (n=m1read((char*) buf, len, 5000)) == 0 );
+  } while ( (n=m1read((char*) buf, len, 500)) == 0 );
+
+  if (n==0)
+      return 0;
 
   if (buf[0] != 0x14)
     return 0;
